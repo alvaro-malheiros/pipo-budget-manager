@@ -17,8 +17,7 @@ export type CategoryType =
   | 'Psicólogo' 
   | 'Viagens' 
   | 'Outros' 
-  | 'Fotografia'
-  | 'Income';
+  | 'Fotografia';
 
 export interface Transaction {
   id: string;
@@ -26,7 +25,7 @@ export interface Transaction {
   category: CategoryType;
   description: string;
   date: string;
-  type: 'income' | 'expense';
+  type: 'expense';
 }
 
 export interface BudgetGoal {

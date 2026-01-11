@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { CategoryType, Transaction } from '../types';
 import { CATEGORIES } from '../constants';
 
@@ -10,7 +10,6 @@ interface TransactionModalProps {
 }
 
 const TransactionModal: React.FC<TransactionModalProps> = ({ onClose, onSave, initialData }) => {
-  const [type, setType] = useState<'income' | 'expense'>(initialData?.type || 'expense');
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
   const [category, setCategory] = useState<CategoryType>(initialData?.category || 'Outros');
   const [description, setDescription] = useState(initialData?.description || '');
@@ -21,7 +20,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ onClose, onSave, in
     if (!amount) return;
     onSave({
       amount: parseFloat(amount),
-      type,
+      type: 'expense',
       category,
       description: description || category,
       date
@@ -35,7 +34,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ onClose, onSave, in
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl font-bold text-gray-900">
-              {initialData ? 'Confirmar Transação' : 'Nova Transação'}
+              {initialData ? 'Confirmar Gasto' : 'Novo Gasto'}
             </h3>
             <button onClick={onClose} className="p-2 bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -43,23 +42,6 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ onClose, onSave, in
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex bg-gray-100 p-1 rounded-xl">
-              <button 
-                type="button" 
-                onClick={() => setType('expense')}
-                className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${type === 'expense' ? 'bg-white shadow-sm text-red-600' : 'text-gray-500'}`}
-              >
-                Gasto
-              </button>
-              <button 
-                type="button" 
-                onClick={() => setType('income')}
-                className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${type === 'income' ? 'bg-white shadow-sm text-emerald-600' : 'text-gray-500'}`}
-              >
-                Renda
-              </button>
-            </div>
-
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Valor</label>
               <div className="relative">
@@ -84,10 +66,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ onClose, onSave, in
                   onChange={(e) => setCategory(e.target.value as CategoryType)}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium"
                 >
-                  {CATEGORIES.filter(c => c.name !== 'Income').map(cat => (
+                  {CATEGORIES.map(cat => (
                     <option key={cat.name} value={cat.name}>{cat.name}</option>
                   ))}
-                  {type === 'income' && <option value="Income">Renda</option>}
                 </select>
               </div>
               <div>
@@ -114,9 +95,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ onClose, onSave, in
 
             <button 
               type="submit"
-              className={`w-full py-4 mt-4 text-white font-bold rounded-2xl transition-transform active:scale-95 ${type === 'expense' ? 'bg-red-500 hover:bg-red-600' : 'bg-emerald-500 hover:bg-emerald-600'}`}
+              className="w-full py-4 mt-4 text-white font-bold bg-red-500 hover:bg-red-600 rounded-2xl transition-transform active:scale-95"
             >
-              {initialData ? 'Confirmar' : `Adicionar ${type === 'expense' ? 'Gasto' : 'Renda'}`}
+              {initialData ? 'Confirmar' : 'Adicionar Gasto'}
             </button>
           </form>
         </div>
