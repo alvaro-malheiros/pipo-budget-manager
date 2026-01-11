@@ -1,0 +1,7 @@
+{
+  "name": "Pipo Budget Manager",
+  "description": "A sophisticated, iOS-inspired personal finance manager that simplifies budgeting with smart AI insights, beautiful visualizations, and intuitive transaction tracking",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
