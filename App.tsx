@@ -74,13 +74,14 @@ const App: React.FC = () => {
       const reader = new FileReader();
       reader.onload = async () => {
         const base64String = (reader.result as string).split(',')[1];
-        const data = await extractReceiptData(base64String, file.type);
+        const categoryNames = CATEGORIES.map(c => c.name);
+        const data = await extractReceiptData(base64String, file.type, categoryNames);
         setScannedData({
           amount: data.amount,
           description: data.merchant,
           date: data.date,
           type: 'expense',
-          category: 'Compras'
+          category: data.category
         });
         setIsModalOpen(true);
         setIsScanning(false);
@@ -122,7 +123,7 @@ const App: React.FC = () => {
     <Layout activeView={activeView} onViewChange={setActiveView}>
       <input type="file" ref={fileInputRef} onChange={onFileChange} accept="image/*" capture="environment" className="hidden" />
 
-      <div className="p-6 pt-10">
+      <div className="p-6 pt-10 pb-20">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
             {activeView === View.DASHBOARD && 'Visão Geral'}
@@ -156,6 +157,53 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Quick Add Actions */}
+            <div className="grid grid-cols-2 gap-4">
+              <button 
+                onClick={() => { setScannedData(null); setIsModalOpen(true); }}
+                className="flex items-center justify-center gap-3 bg-white border border-gray-100 p-4 rounded-3xl shadow-sm active:scale-95 transition-all hover:bg-gray-50"
+              >
+                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                </div>
+                <span className="font-bold text-gray-800">Novo Gasto</span>
+              </button>
+              <button 
+                onClick={handleScanReceipt}
+                className="flex items-center justify-center gap-3 bg-white border border-gray-100 p-4 rounded-3xl shadow-sm active:scale-95 transition-all hover:bg-gray-50"
+              >
+                <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center">
+                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                </div>
+                <span className="font-bold text-gray-800">Scan Recibo</span>
+              </button>
+            </div>
+
+            {/* Recent Spending Snapshot */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold">Últimos Lançamentos</h3>
+                <button onClick={() => setActiveView(View.TRANSACTIONS)} className="text-blue-600 text-sm font-semibold">Ver tudo</button>
+              </div>
+              <div className="space-y-3">
+                {transactions.slice(0, 3).map(t => {
+                   const config = CATEGORIES.find(c => c.name === t.category);
+                   return (
+                    <div key={t.id} className="flex items-center justify-between bg-white p-3 rounded-2xl border border-gray-50">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-xl text-white ${config?.color || 'bg-gray-400'}`}>{config?.icon}</div>
+                        <div>
+                          <p className="font-bold text-gray-900 text-sm">{t.description}</p>
+                          <p className="text-[10px] text-gray-500 uppercase font-medium">{t.category}</p>
+                        </div>
+                      </div>
+                      <span className={`font-bold text-sm ${t.type === 'income' ? 'text-emerald-500' : 'text-gray-900'}`}>{t.type === 'income' ? '+' : '-'}${t.amount}</span>
+                    </div>
+                   );
+                })}
+              </div>
+            </div>
           </div>
         )}
 
@@ -184,7 +232,6 @@ const App: React.FC = () => {
 
         {activeView === View.STATS && (
           <div className="space-y-6">
-            {/* PAINEL Group 1 (%VAR) */}
             <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
                <div className="bg-black text-white p-3 text-center text-xs font-bold uppercase tracking-widest">Painel de Gastos Diários</div>
                <table className="w-full text-sm">
@@ -217,7 +264,6 @@ const App: React.FC = () => {
                </table>
             </div>
 
-            {/* PAINEL Group 2 (VAR Absolute) */}
             <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
                <div className="bg-black text-white p-3 text-center text-xs font-bold uppercase tracking-widest">Custos Fixos e Grandes</div>
                <table className="w-full text-sm">
@@ -250,7 +296,6 @@ const App: React.FC = () => {
                </table>
             </div>
 
-            {/* Pie Chart Summary */}
             <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
               <h3 className="text-lg font-bold mb-6 text-center">Resumo de Gastos</h3>
               <div className="h-64 w-full">

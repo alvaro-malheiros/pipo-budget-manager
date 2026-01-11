@@ -12,7 +12,7 @@ export async function getBudgetInsights(transactions: Transaction[], budgets: Bu
     And the following monthly budget limits:
     ${JSON.stringify(budgets)}
     
-    Please provide 3-4 short, actionable insights or tips based on my spending patterns. 
+    Please provide 3-4 short, actionable insights or tips based on my spending patterns in Portuguese. 
     Focus on areas where I might be overspending or could save. Keep the tone professional but friendly.
     Return only a JSON array of strings.
   `;
@@ -30,15 +30,17 @@ export async function getBudgetInsights(transactions: Transaction[], budgets: Bu
     if (text) {
       return JSON.parse(text) as string[];
     }
-    return ["Track your coffee spending - it adds up!", "You're doing great on your housing budget.", "Consider setting a grocery limit."];
+    return ["Acompanhe seus gastos com café - eles somam!", "Você está indo bem no seu orçamento de moradia.", "Considere definir um limite para supermercado."];
   } catch (error) {
     console.error("Gemini Error:", error);
-    return ["Stay mindful of your daily expenses.", "Check your subscription services for potential savings.", "Great job keeping track of your income!"];
+    return ["Mantenha-se atento às suas despesas diárias.", "Verifique seus serviços de assinatura para possíveis economias.", "Bom trabalho acompanhando sua renda!"];
   }
 }
 
-export async function extractReceiptData(base64Data: string, mimeType: string) {
-  const prompt = "Analyze this receipt image and extract the total amount, the name of the store/merchant, and the date. Return the data in a structured JSON format.";
+export async function extractReceiptData(base64Data: string, mimeType: string, availableCategories: string[]) {
+  const prompt = `Analyze this receipt image and extract the total amount, the name of the store/merchant, and the date. 
+  Additionally, select the most appropriate category from this list: [${availableCategories.join(', ')}].
+  Return the data in a structured JSON format.`;
   
   try {
     const response = await ai.models.generateContent({
@@ -60,15 +62,16 @@ export async function extractReceiptData(base64Data: string, mimeType: string) {
             amount: { type: Type.NUMBER, description: "The total amount of the receipt" },
             merchant: { type: Type.STRING, description: "The name of the store or merchant" },
             date: { type: Type.STRING, description: "The date of the transaction in YYYY-MM-DD format" },
+            category: { type: Type.STRING, description: "The most likely category for this spend from the provided list" },
           },
-          required: ["amount", "merchant", "date"],
+          required: ["amount", "merchant", "date", "category"],
         },
       },
     });
 
     const text = response.text;
     if (text) {
-      return JSON.parse(text) as { amount: number; merchant: string; date: string };
+      return JSON.parse(text) as { amount: number; merchant: string; date: string; category: CategoryType };
     }
     throw new Error("Empty response from AI");
   } catch (error) {
