@@ -1,20 +1,25 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
 
-# Run and deploy your AI Studio app
+# Pipo Budget Manager (iOS-inspired)
 
-This contains everything you need to run your app locally.
+A sophisticated personal finance manager built with React, Tailwind CSS, and Google Gemini AI.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1bbJdwqVrYILmPdlXlMN941KUMC64STsf
+## Deployment on Vercel
 
-## Run Locally
+1. **Push to GitHub**: Create a new repository and push all files to it.
+2. **Connect to Vercel**: 
+   - Go to [vercel.com](https://vercel.com).
+   - Click "Add New" -> "Project".
+   - Import your GitHub repository.
+3. **Configure Environment Variables**:
+   - In the Vercel project settings, go to **Environment Variables**.
+   - Add a new variable:
+     - **Key**: `API_KEY`
+     - **Value**: Your Google Gemini API Key.
+4. **Deploy**: Vercel will automatically detect the Vite project and deploy it.
 
-**Prerequisites:**  Node.js
+## Local Development
 
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```bash
+npm install
+npm run dev
+```
