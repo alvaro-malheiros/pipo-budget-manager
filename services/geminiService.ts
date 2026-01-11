@@ -2,7 +2,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Transaction, BudgetGoal, CategoryType } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
 export async function getBudgetInsights(transactions: Transaction[], budgets: BudgetGoal[]) {
   const context = `
